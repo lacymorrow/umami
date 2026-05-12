@@ -25,6 +25,11 @@ async function batchedFetch<T>(
   return results;
 }
 
+interface AllWebsiteStatsResult {
+  stats: Record<string, WebsiteStats>;
+  failedIds: string[];
+}
+
 export function useAllWebsiteStatsQuery(
   websiteIds: string[],
   range: OverviewRange,
@@ -35,7 +40,7 @@ export function useAllWebsiteStatsQuery(
   const bucketMs = getRangeBucketMs(range);
   const bucket = Math.floor(Date.now() / bucketMs);
 
-  return useQuery<Record<string, WebsiteStats>>({
+  return useQuery<AllWebsiteStatsResult>({
     queryKey: ['websites:all-stats', { ids: websiteIds, range, bucket }],
     queryFn: async () => {
       const endAt = Date.now();
@@ -48,9 +53,13 @@ export function useAllWebsiteStatsQuery(
         ),
       );
 
-      return Object.fromEntries(
-        results.filter(([, stats]) => stats !== null),
-      );
+      const failedIds = results.filter(([, stats]) => stats === null).map(([id]) => id);
+      const stats = Object.fromEntries(results.filter(([, s]) => s !== null)) as Record<
+        string,
+        WebsiteStats
+      >;
+
+      return { stats, failedIds };
     },
     enabled: enabled && websiteIds.length > 0,
     staleTime: bucketMs,
