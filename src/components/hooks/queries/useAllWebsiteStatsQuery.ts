@@ -1,4 +1,5 @@
 import { useApi } from '../useApi';
+import { type OverviewRange, RANGE_MS, getRangeBucketMs } from './useWebsiteSummaryQuery';
 
 export type SortField = 'name' | 'visitors' | 'pageviews';
 
@@ -10,35 +11,40 @@ interface WebsiteStats {
   totaltime: number;
 }
 
-const MS: Record<string, number> = {
-  '24h': 24 * 60 * 60 * 1000,
-  '7d': 7 * 24 * 60 * 60 * 1000,
-  '30d': 30 * 24 * 60 * 60 * 1000,
-  '1y': 365 * 24 * 60 * 60 * 1000,
-};
+const CONCURRENCY = 5;
+
+async function batchedFetch<T>(
+  items: string[],
+  fn: (id: string) => Promise<T>,
+): Promise<T[]> {
+  const results: T[] = [];
+  for (let i = 0; i < items.length; i += CONCURRENCY) {
+    const batch = items.slice(i, i + CONCURRENCY);
+    results.push(...(await Promise.all(batch.map(fn))));
+  }
+  return results;
+}
 
 export function useAllWebsiteStatsQuery(
   websiteIds: string[],
-  range: string,
+  range: OverviewRange,
   enabled = true,
 ) {
   const { get, useQuery } = useApi();
 
-  const bucketMs = range === '24h' ? 60 * 60 * 1000 : 6 * 60 * 60 * 1000;
+  const bucketMs = getRangeBucketMs(range);
   const bucket = Math.floor(Date.now() / bucketMs);
 
   return useQuery<Record<string, WebsiteStats>>({
     queryKey: ['websites:all-stats', { ids: websiteIds, range, bucket }],
     queryFn: async () => {
       const endAt = Date.now();
-      const startAt = endAt - MS[range];
+      const startAt = endAt - RANGE_MS[range];
 
-      const results = await Promise.all(
-        websiteIds.map(id =>
-          get(`/websites/${id}/stats`, { startAt, endAt }).then(
-            (stats: WebsiteStats) => [id, stats] as const,
-            () => [id, null] as const,
-          ),
+      const results = await batchedFetch(websiteIds, id =>
+        get(`/websites/${id}/stats`, { startAt, endAt }).then(
+          (stats: WebsiteStats) => [id, stats] as const,
+          () => [id, null] as const,
         ),
       );
 

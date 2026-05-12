@@ -24,15 +24,15 @@ const RANGES: { value: OverviewRange; label: string }[] = [
   { value: '1y', label: '1y' },
 ];
 
-const SORTS: { value: SortField; label: string }[] = [
-  { value: 'name', label: 'A–Z' },
-  { value: 'visitors', label: 'Visitors' },
-  { value: 'pageviews', label: 'Views' },
-];
-
 export function WebsitesPage() {
   const { teamId } = useNavigation();
   const { formatMessage, labels } = useMessages();
+
+  const sorts: { value: SortField; label: string }[] = [
+    { value: 'name', label: formatMessage(labels.name) },
+    { value: 'visitors', label: formatMessage(labels.visitors) },
+    { value: 'pageviews', label: formatMessage(labels.views) },
+  ];
   const [view, setView] = useState<'grid' | 'list'>(() => getItem(VIEW_KEY) ?? 'grid');
   const [range, setRange] = useState<OverviewRange>(() => getItem(RANGE_KEY) ?? '24h');
   const [sort, setSort] = useState<SortField>(() => getItem(SORT_KEY) ?? 'name');
@@ -62,9 +62,9 @@ export function WebsitesPage() {
                 {/* Sort selector */}
                 <Row gap="1" alignItems="center">
                   <span style={{ fontSize: '12px', color: 'var(--text-500)', whiteSpace: 'nowrap' }}>
-                    Sort:
+                    {formatMessage(labels.sort)}:
                   </span>
-                  {SORTS.map(s => (
+                  {sorts.map(s => (
                     <Button
                       key={s.value}
                       variant={sort === s.value ? 'primary' : 'quiet'}
