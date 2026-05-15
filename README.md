@@ -17,6 +17,20 @@
 
 ---
 
+## Why This Fork?
+
+This is a maintained fork of [umami-software/umami](https://github.com/umami-software/umami). We forked to add dashboard and UX improvements we need for monitoring our own properties that haven't landed upstream yet:
+
+- **Consolidated website overview** — redesigned `/websites` page with grid/list toggle and datafa.st-style cards for at-a-glance metrics across all sites
+- **Real-time active visitors** — live active-visitor count badge on each website card with viewport-aware polling (only fetches when visible)
+- **Sort & filter controls** — sort websites by visitors or pageviews with a redesigned dropdown + filter-button UI and a bulk stats endpoint
+- **Date range selector** — pick a date range directly from the websites overview grid instead of drilling into each site
+- **Image compression** — compressed bundled assets for smaller deploy size
+
+We keep the fork in sync with upstream (`git fetch upstream && git merge upstream/master`) and contribute fixes back where appropriate.
+
+---
+
 ## 🚀 Getting Started
 
 A detailed getting started guide can be found at [umami.is/docs](https://umami.is/docs/).
@@ -33,7 +47,7 @@ A detailed getting started guide can be found at [umami.is/docs](https://umami.i
 ### Get the source code and install packages
 
 ```bash
-git clone https://github.com/umami-software/umami.git
+git clone https://github.com/lacymorrow/umami.git
 cd umami
 pnpm install
 ```
