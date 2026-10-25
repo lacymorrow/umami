@@ -26,6 +26,7 @@ This is a maintained fork of [umami-software/umami](https://github.com/umami-sof
 - **Sort & filter controls** — sort websites by visitors or pageviews with a redesigned dropdown + filter-button UI and a bulk stats endpoint
 - **Date range selector** — pick a date range directly from the websites overview grid instead of drilling into each site
 - **Image compression** — compressed bundled assets for smaller deploy size
+- **`IGNORE_SCREEN`** — drop collect requests reporting a given screen resolution, so JS-executing crawlers that spoof a desktop user agent past the `isbot` check stop being counted as visitors. Comma-separated `WxH` list, same shape as `IGNORE_IP`. Unset means no filtering.
 
 We keep the fork in sync with upstream (`git fetch upstream && git merge upstream/master`) and contribute fixes back where appropriate.
 

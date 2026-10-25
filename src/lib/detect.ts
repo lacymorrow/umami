@@ -137,6 +137,25 @@ export async function getClientInfo(request: Request, payload: Record<string, an
   return { userAgent, browser, os, ip, country, region, city, device };
 }
 
+// A JS-executing crawler can spoof its user agent past the isbot check, but it
+// still reports the viewport it actually rendered at. Synthetic viewports no
+// panel ships (square resolutions, odd sizes) are the only fingerprint left.
+export function hasBlockedScreen(screen?: string) {
+  const ignoreScreens = process.env.IGNORE_SCREEN;
+
+  if (!ignoreScreens || !screen) {
+    return false;
+  }
+
+  const target = screen.trim().toLowerCase();
+
+  return ignoreScreens
+    .split(',')
+    .map(n => n.trim().toLowerCase())
+    .filter(Boolean)
+    .some(n => n === target);
+}
+
 export function hasBlockedIp(clientIp: string) {
   const ignoreIps = process.env.IGNORE_IP;
 
